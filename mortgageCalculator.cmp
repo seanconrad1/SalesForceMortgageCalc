@@ -1,0 +1,140 @@
+<aura:component >
+    <aura:attribute name="MortgageCalc" type="MortgageCalc__c"
+                    default="{ 'sobjectType': 'MortgageCalc__c ',
+                        'Price__c': '0',
+                  		'Interest_Rate__c': '6',
+                        'Down_Payment__c ': 0,
+                        'LengthOfLoan__c ': '1',
+                        'Property_Tax__c ': '0',
+                        'Home_Owners_Insurance_Assumption__c ': '0'}"/>
+    <aura:attribute name="monthlyPayment" type="Integer" default='0'/>
+    <aura:attribute name="val" type="Integer" default="0"/>
+    <aura:attribute name="priceWithDiscountOnly" type="Integer" default="0"/>
+    <aura:handler name="change" value="{!v.MortgageCalc.Price__c}" action="{!c.calculateMortgage}" />
+    <aura:attribute name="chartobj" type="Map" access="public"/>
+
+
+
+    <lightning:layout  verticalAlign="center" class="slds-page-header slds-page-header--object-home">
+        <lightning:layoutItem>
+                <lightning:icon iconName="standard:home" alternativeText="My Expenses"/>
+        </lightning:layoutItem>
+
+        <lightning:layoutItem flexibility="auto" padding="horizontal-small">
+            <div class="page-section page-header">
+                <h2 class="slds-text-heading--medium">Mortgage Calculator</h2>
+            </div>
+        </lightning:layoutItem>
+
+    </lightning:layout>
+
+
+    <lightning:layout  verticalAlign="center" class="x-large">
+        <lightning:layoutItem flexibility="auto" padding="around-small">
+
+        <div aria-labelledby="mortgagecalcform">
+            <!-- BOXED AREA -->
+            <fieldset class="slds-box slds-theme--default slds-container--small">
+            <legend id="mortgagecalcform" class="slds-text-heading--small
+              slds-p-vertical--medium">
+              Calculator
+            </legend>
+
+        <lightning:layoutItem padding="horizontal-small">
+            <div class="page-section page-header">
+                <h3 class="slds-text-heading--medium">Monthly Payment: ${!v.monthlyPayment} </h3>
+            </div>
+            <lightning:slider  label="Total adjuster"
+                              aura:id="calculatorform"
+                              name="totalSlider"
+                              value="{!v.monthlyPayment}"
+                              step="1"
+                              max="10000"
+                              size="medium"
+                              onchange="{!c.totalSliderController}"
+                              />
+
+         </lightning:layoutItem>
+
+
+        <form class="slds-form--stacked">
+
+
+    	<span onkeyup="{!c.calculateMortgage}">
+            <lightning:input aura:id="calculatorform"
+                             label="Price of Home"
+                             type="number"
+                             formatter="currency"
+                             name="price"
+                             value="{!v.MortgageCalc.Price__c}"
+                             min="1"
+                             required="true"
+                             />
+
+          	<lightning:slider label="Price adjuster"
+                              aura:id="calculatorform"
+                              name="slider"
+                              value="{!v.val}"
+                              step="1"
+                              max="500000"
+                              onchange="{!c.sliderController}"
+                              />
+
+         	<lightning:input type="number" aura:id="calculatorform" label="Interest rate %"
+                             name="interestrate"
+                             formatter="percent-fixed"
+                             required="true"
+                             value="{!v.MortgageCalc.Interest_Rate__c}"
+                             step=".01"
+                             max="100"
+                             min=".1"
+                             messageWhenRangeUnderflow="Enter an amount that's at least .1%."/>
+
+            <lightning:input type="number" aura:id="calculatorform" label="Down Payment %"
+                             name="downpayment"
+                             max="100"
+                             formatter="percent-fixed"
+                             value="{!v.MortgageCalc.Down_Payment__c}"
+                             step=".1"
+                             />
+
+			<lightning:select name="lengthofloan" aura:id="select" onchange="{!c.calculateMortgage}" label="Length of loan">
+                <option value="1">30 years</option>
+                <option value="2">15 years</option>
+            </lightning:select>
+
+            <lightning:input type="number" aura:id="calculatorform" label="Property Tax"
+                             name="propertytax"
+                             formatter="currency"
+                             value="{!v.MortgageCalc.Property_Tax__c}"
+                             step=".01"
+                             min=".1"
+                             />
+
+        	<lightning:input type="number" aura:id="calculatorform" label="Home Owners Insurance Assumption"
+                             name="hoia"
+                             formatter="currency"
+                             value="{!v.MortgageCalc.Home_Owners_Insurance_Assumption__c}"
+                             step=".01"
+                             min=".1"
+                             />
+
+          <ltng:require scripts="{!$Resource.ChartJS}" afterScriptsLoaded="{!c.setupChart}"/>
+            <div class="slds-box">
+                <canvas aura:id="piechart" height="100" width="500"></canvas>
+            </div>
+
+            		</span>
+               </form>
+            </fieldset>
+           </div>
+
+
+
+        </lightning:layoutItem>
+    </lightning:layout>
+
+
+
+
+</aura:component>
